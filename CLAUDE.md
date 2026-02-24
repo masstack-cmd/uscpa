@@ -148,10 +148,39 @@ USCPA試験の問題演習Webアプリ。「やりながら覚える」学習ス
 
 ---
 
+## 問題生成ワークフロー
+
+### 仕組み
+- 問題生成はClaude Code（この会話）で行う → Proプランの範囲、APIコスト不要
+- 生成した問題はPythonスクリプト経由でGAS→Sheetsに自動保存
+- ユーザーが「〇〇を作成して」等と指示したら以下を実行する
+
+### GAS接続情報
+- URL: `https://script.google.com/macros/s/AKfycbwqjUYbaGUtvBmsawBuXeNL0O7HZnZ699_JPc1UIPVn24R1s1aZt4SQv15G5re_7xDb/exec`
+- TOKEN: `uscpa-app`（GASスクリプトプロパティに保存済み）
+
+### Claude Codeの問題生成手順
+1. 指定された単元の問題を生成（vocab: 60%、calc: 40%）
+2. calc問題は内部で自己検証してから出力
+3. JSON形式でPythonスクリプトを呼び出してSheetsに保存
+
+### Pythonでの送信方法
+```python
+import urllib.request, json
+url = 'https://script.google.com/macros/s/AKfycbwqjUYbaGUtvBmsawBuXeNL0O7HZnZ699_JPc1UIPVn24R1s1aZt4SQv15G5re_7xDb/exec'
+data = json.dumps({'token': 'uscpa-app', 'unit': '単元名', 'questions': [...]}).encode('utf-8')
+req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
+with urllib.request.urlopen(req) as res:
+    print(res.read().decode('utf-8'))
+```
+
+---
+
 ## 次回やること
 1. ~~FAR目次の共有~~ → 完了（暫定17単元）
 2. ~~Claude APIキーの取得~~ → 完了
-3. **実装フェーズ①開始**（4問生成・クオリティ確認）
+3. ~~GAS doPost実装・接続確認~~ → 完了（2026-02-25）
+4. **本番テスト：銀行勘定調整の問題を生成してSheetsに保存**
 
 ---
 
