@@ -84,8 +84,10 @@ USCPA試験の問題演習Webアプリ。「やりながら覚える」学習ス
 →変更：GAS web app単体 → フロントエンドをGitHub Pagesに分離（2026-02-26）
 - **フロントエンド：** HTML/CSS/JS（GitHub Pages） `https://masstack-cmd.github.io/uscpa/`
 - **バックエンド：** Google Apps Script（HTTP API、`doGet` で問題取得・回答記録）
-- **AI（現在）：** Claude Code（この会話）で手動生成 → APIコスト不要
-- **AI（フェーズ②以降）：** Claude API（vocab→Haiku、calc→Sonnet）でGASが週次自動再生成
+- **AI：** Claude Code（この会話）で手動生成 → APIコスト不要（全フェーズ共通）
+  - 週次再生成：ユーザーが「再生成して」と指示 → 解いた問題分だけClaudeが生成 → Sheets保存
+  - 初回・フェーズ移行時のみ大量生成が必要 → 複数セッションに分けて対応
+  - →変更：GASが週次自動再生成（Claude API有料）案を廃止（2026-02-26）
 - **DB：** Google Sheets（問題DB・進捗管理）
 
 #### 分離の経緯
