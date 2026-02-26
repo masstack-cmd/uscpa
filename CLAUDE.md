@@ -81,10 +81,14 @@ USCPA試験の問題演習Webアプリ。「やりながら覚える」学習ス
 - 科目の習熟度 = その科目に属する全単元の「直近100問正答率」の平均
 
 ### 技術スタック
-- **フロントエンド：** HTML/CSS/JS（レスポンシブ、スマホ対応）
-- **バックエンド：** Google Apps Script（GAS）
+→変更：GAS web app単体 → フロントエンドをGitHub Pagesに分離（2026-02-26）
+- **フロントエンド：** HTML/CSS/JS（GitHub Pages） `https://masstack-cmd.github.io/uscpa/`
+- **バックエンド：** Google Apps Script（HTTP API、`doGet` で問題取得・回答記録）
 - **AI：** Claude API（vocab→Haiku、calc→Sonnet）
 - **DB：** Google Sheets（問題DB・進捗管理）
+
+#### 分離の経緯
+GAS web appはiframe構造のためスマホブラウザで正しくレイアウトが機能しない（viewport幅が誤検知される・iframe高さがコンテンツ分しか確保されない）。フロントエンドをGitHub Pagesに移すことで完全なモバイル対応を実現（2026-02-26）。
 
 ### UI構成
 - トップ：科目選択メニュー [FAR] [AUD] [REG] [BAR] [ISC] [TCP]
@@ -186,7 +190,8 @@ with urllib.request.urlopen(req) as res:
 2. ~~Claude APIキーの取得~~ → 完了
 3. ~~GAS doPost実装・接続確認~~ → 完了（2026-02-25）
 4. ~~FAR全17単元×5問（計85問）生成・Sheets保存~~ → 完了（2026-02-25）
-5. **問題クオリティ確認：各単元を実際に解いて検証（開発フェーズ①）**
+5. ~~フロントエンドをGitHub Pagesに分離・モバイル最適化~~ → 完了（2026-02-26）
+6. **問題クオリティ確認：各単元を実際に解いて検証（開発フェーズ①）**
 
 ---
 
