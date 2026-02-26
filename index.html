@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>USCPA 練習問題</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ヘッダー */
+.app-header {
+  background: #4a90d9;
+  color: white;
+  padding: 16px 20px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  flex-shrink: 0;
+}
+.app-header h1 { font-size: 18px; font-weight: 700; }
+.app-header .unit-name { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+
+/* メインコンテンツ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* カード */
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* スタート画面 */
+.start-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+.start-content p { font-size: 16px; color: #555; }
+
+/* 問題 */
+.progress {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 14px;
+}
+.type-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+}
+.type-vocab { background: #e8f4fd; color: #1a7abf; }
+.type-calc  { background: #fef3e2; color: #c17f2a; }
+
+.question {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #111;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.choice-btn {
+  text-align: left;
+  padding: 14px 16px;
+  min-height: 52px;
+  border: 2px solid #e4e4e4;
+  border-radius: 10px;
+  background: white;
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1.5;
+  width: 100%;
+  transition: border-color 0.1s, background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.choice-btn:active:not(:disabled) { background: #eef5ff; border-color: #4a90d9; }
+.choice-btn.correct { border-color: #27ae60; background: #eafaf1; color: #1e8449; font-weight: 600; }
+.choice-btn.wrong   { border-color: #e74c3c; background: #fdedec; color: #c0392b; }
+
+/* 結果 */
+.result {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.result.correct { background: #eafaf1; color: #1e8449; }
+.result.wrong   { background: #fdedec; color: #c0392b; }
+.hint {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: #fffbea;
+  border-left: 3px solid #f5c842;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* ボタン */
+.btn {
+  width: 100%;
+  padding: 16px;
+  min-height: 52px;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 14px;
+  letter-spacing: 0.3px;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary  { background: #4a90d9; color: white; }
+.btn-start    { background: #27ae60; color: white; }
+.btn-primary:active { background: #3a7bc8; }
+.btn-start:active   { background: #1e9451; }
+
+/* ローディング */
+.loading {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  color: #999;
+}
+
+/* 結果画面 */
+.score-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.score-screen h2 { font-size: 20px; color: #333; }
+.score { font-size: 56px; font-weight: 700; color: #4a90d9; margin: 12px 0; }
+.score-screen p { font-size: 14px; color: #999; }
+
+/* エラー */
+.error { color: #e74c3c; font-size: 14px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>USCPA 練習問題</h1>
+  <div class="unit-name" id="unit-label">📚 銀行勘定調整 (Bank Reconciliation)</div>
+</div>
+
+<div class="main">
+  <div class="card" id="card">
+    <div class="start-content">
+      <p>保存済みの問題から4問出題します。</p>
+      <button class="btn btn-start" onclick="startSession()">練習を始める</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwqjUYbaGUtvBmsawBuXeNL0O7HZnZ699_JPc1UIPVn24R1s1aZt4SQv15G5re_7xDb/exec';
+const TOKEN   = 'uscpa-app';
+const UNIT    = '銀行勘定調整';
+
+let questions = [], current = 0, score = 0, answered = false;
+
+function startSession() {
+  showLoading();
+  fetch(`${GAS_URL}?action=getQuestions&token=${TOKEN}&unit=${encodeURIComponent(UNIT)}`)
+    .then(r => r.json())
+    .then(onLoaded)
+    .catch(err => showError(err.message));
+}
+
+function onLoaded(qs) {
+  questions = qs; current = 0; score = 0;
+  if (!questions || questions.length === 0) {
+    showError('問題が見つかりませんでした。');
+    return;
+  }
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  const badge = q.type === 'vocab'
+    ? '<span class="type-badge type-vocab">Vocab</span>'
+    : '<span class="type-badge type-calc">Calculation</span>';
+  const choices = Object.entries(q.choices).map(([k, v]) =>
+    `<button class="choice-btn" id="btn-${k}" onclick="answer('${k}')">${k}. ${v}</button>`
+  ).join('');
+
+  document.getElementById('card').innerHTML = `
+    <div class="progress">${current + 1} / ${questions.length}</div>
+    ${badge}
+    <div class="question">${q.question}</div>
+    <div class="choices">${choices}</div>
+    <div id="result"></div>
+  `;
+}
+
+function answer(sel) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const ok = sel === q.correct;
+  if (ok) score++;
+
+  ['A','B','C','D'].forEach(k => {
+    const b = document.getElementById('btn-' + k);
+    if (!b) return;
+    b.disabled = true;
+    if (k === q.correct) b.classList.add('correct');
+    if (k === sel && !ok) b.classList.add('wrong');
+  });
+
+  const isLast = current + 1 >= questions.length;
+  let html = ok
+    ? `<div class="result correct">✓ 正解！</div>${q.explanation ? '<div class="hint">💡 ' + q.explanation + '</div>' : ''}`
+    : `<div class="result wrong">✗ 不正解。正解は ${q.correct} です。</div><div class="hint">💡 ヒント：${q.hint}</div>`;
+  html += `<button class="btn btn-primary" onclick="next()">${isLast ? '結果を見る' : '次の問題 →'}</button>`;
+  document.getElementById('result').innerHTML = html;
+
+  // 回答を記録（fire & forget）
+  fetch(`${GAS_URL}?action=saveAnswer&token=${TOKEN}&id=${q.id}&ok=${ok ? 1 : 0}`)
+    .catch(() => {});
+}
+
+function next() {
+  current++;
+  if (current < questions.length) {
+    showQuestion();
+  } else {
+    document.getElementById('card').innerHTML = `
+      <div class="score-screen">
+        <h2>セッション完了</h2>
+        <div class="score">${score} <span style="font-size:24px;color:#aaa">/ ${questions.length}</span></div>
+        <p>問題のクオリティはどうでしたか？</p>
+        <button class="btn btn-start" onclick="startSession()">もう一度</button>
+      </div>
+    `;
+  }
+}
+
+function showLoading() {
+  document.getElementById('card').innerHTML = '<div class="loading">⏳ 読み込み中...</div>';
+}
+
+function showError(msg) {
+  document.getElementById('card').innerHTML = `
+    <div class="start-content">
+      <p class="error">エラー: ${msg}</p>
+      <button class="btn btn-start" onclick="startSession()">再試行</button>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
