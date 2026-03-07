@@ -295,7 +295,7 @@ function showSelectionScreen() {
       const sel = selected.has(unit);
       html += `
         <div class="unit-item${sel ? ' selected' : ''}" data-unit="${ci}-${ui}" onclick="toggleUnit(${ci},${ui},this)">
-          <input type="checkbox" ${sel ? 'checked' : ''} onclick="event.stopPropagation()">
+          <input type="checkbox" ${sel ? 'checked' : ''} onclick="event.stopPropagation(); toggleUnit(${ci},${ui},this.closest('.unit-item'))">
           <span class="unit-name-text">${unit}</span>
         </div>
       `;
