@@ -9,9 +9,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   background: #f0f2f5;
@@ -29,21 +27,98 @@ body {
   flex-shrink: 0;
 }
 .app-header h1 { font-size: 18px; font-weight: 700; }
-.app-header .unit-name { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+.app-header .subtitle { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 3px; }
 
-/* メインコンテンツ */
+/* メイン */
 .main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
   padding: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
 }
 
-/* カード */
+/* 単元選択 */
+.chapter-block { margin-bottom: 20px; }
+
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.chapter-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a90d9;
+  letter-spacing: 0.3px;
+}
+.chapter-toggle {
+  font-size: 12px;
+  color: #4a90d9;
+  background: none;
+  border: 1px solid #4a90d9;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.unit-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.1s, background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.unit-item.selected {
+  border-color: #4a90d9;
+  background: #f0f6ff;
+}
+.unit-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  margin-right: 12px;
+  accent-color: #4a90d9;
+  cursor: pointer;
+}
+.unit-name-text { font-size: 14px; color: #222; line-height: 1.4; }
+
+/* スタートバー */
+.start-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+.selected-count {
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+}
+
+/* 練習カード */
+.practice-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
 .card {
   background: white;
   border-radius: 14px;
@@ -54,24 +129,7 @@ body {
   flex-direction: column;
 }
 
-/* スタート画面 */
-.start-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-}
-.start-content p { font-size: 16px; color: #555; }
-
-/* 問題 */
-.progress {
-  font-size: 13px;
-  color: #999;
-  margin-bottom: 14px;
-}
+.progress { font-size: 13px; color: #999; margin-bottom: 14px; }
 .type-badge {
   display: inline-block;
   font-size: 11px;
@@ -89,14 +147,8 @@ body {
   line-height: 1.75;
   color: #111;
   margin-bottom: 20px;
-  flex-shrink: 0;
 }
-
-.choices {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.choices { display: flex; flex-direction: column; gap: 10px; }
 .choice-btn {
   text-align: left;
   padding: 14px 16px;
@@ -108,14 +160,12 @@ body {
   cursor: pointer;
   line-height: 1.5;
   width: 100%;
-  transition: border-color 0.1s, background 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 .choice-btn:active:not(:disabled) { background: #eef5ff; border-color: #4a90d9; }
 .choice-btn.correct { border-color: #27ae60; background: #eafaf1; color: #1e8449; font-weight: 600; }
 .choice-btn.wrong   { border-color: #e74c3c; background: #fdedec; color: #c0392b; }
 
-/* 結果 */
 .result {
   margin-top: 16px;
   padding: 14px;
@@ -138,94 +188,193 @@ body {
 
 /* ボタン */
 .btn {
-  width: 100%;
-  padding: 16px;
-  min-height: 52px;
+  padding: 14px 16px;
+  min-height: 50px;
   border: none;
   border-radius: 12px;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 14px;
   letter-spacing: 0.3px;
   -webkit-tap-highlight-color: transparent;
 }
-.btn-primary  { background: #4a90d9; color: white; }
-.btn-start    { background: #27ae60; color: white; }
+.btn-block { width: 100%; margin-top: 12px; display: block; }
+.btn-primary { background: #4a90d9; color: white; }
+.btn-start   { background: #27ae60; color: white; flex: 1; }
+.btn-back    { background: #f0f2f5; color: #555; }
+.btn:disabled { background: #ccc; color: #fff; cursor: not-allowed; }
 .btn-primary:active { background: #3a7bc8; }
 .btn-start:active   { background: #1e9451; }
+.btn-back:active    { background: #e0e2e5; }
 
-/* ローディング */
-.loading {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 15px;
-  color: #999;
-}
-
-/* 結果画面 */
-.score-screen {
+/* 結果・ローディング */
+.center-screen {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 32px 0;
 }
-.score-screen h2 { font-size: 20px; color: #333; }
-.score { font-size: 56px; font-weight: 700; color: #4a90d9; margin: 12px 0; }
-.score-screen p { font-size: 14px; color: #999; }
-
-/* エラー */
-.error { color: #e74c3c; font-size: 14px; margin-bottom: 12px; }
+.center-screen h2 { font-size: 20px; color: #333; }
+.score { font-size: 56px; font-weight: 700; color: #4a90d9; margin: 8px 0; }
+.center-screen p { font-size: 14px; color: #999; }
+.loading { color: #999; font-size: 15px; }
+.error-msg { color: #e74c3c; font-size: 14px; }
 </style>
 </head>
 <body>
 
 <div class="app-header">
   <h1>USCPA 練習問題</h1>
-  <div class="unit-name" id="unit-label">📚 銀行勘定調整 (Bank Reconciliation)</div>
+  <div class="subtitle" id="header-sub">FAR</div>
 </div>
 
-<div class="main">
-  <div class="card" id="card">
-    <div class="start-content">
-      <p>保存済みの問題から4問出題します。</p>
-      <button class="btn btn-start" onclick="startSession()">練習を始める</button>
-    </div>
-  </div>
-</div>
+<div class="main" id="main"></div>
 
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwqjUYbaGUtvBmsawBuXeNL0O7HZnZ699_JPc1UIPVn24R1s1aZt4SQv15G5re_7xDb/exec';
-const TOKEN   = 'uscpa-app';
-const UNIT    = '銀行勘定調整';
+const TOKEN = 'uscpa-app';
 
+const CHAPTERS = [
+  {
+    title: '章1：財務会計の基本的概念と財務諸表',
+    units: [
+      '会計原則・概念フレームワーク',
+      'ASCと財務諸表の表示',
+      '貸借対照表',
+      '損益計算書',
+      '包括利益・損益の構成要素',
+      '株主持分計算書',
+    ]
+  },
+  {
+    title: '章2：財務諸表の表示と開示・認識と測定の概念',
+    units: [
+      '開示（会計方針・関連当事者・リスク）',
+      '非継続事業',
+      '認識と測定・後発事象',
+      '公正価値の測定と開示',
+    ]
+  },
+  {
+    title: '章3：流動資産（現金・売掛金・棚卸資産）',
+    units: [
+      '現金管理（現金同等物・小切手・銀行勘定調整）',
+      '売掛金・貸倒引当金',
+      '債権の譲渡・証券化・ファクタリング',
+      '棚卸資産の基礎（定義・貿易条件・売上原価認識）',
+      '棚卸資産の評価方法（個別法〜後入先出法・ドル価値LIFO）',
+      '棚卸資産の再測定・購入契約',
+      '推定法（総利益法・売価還元法）',
+    ]
+  }
+];
+
+let selected = new Set();
 let questions = [], current = 0, score = 0, answered = false;
 
-function startSession() {
-  showLoading();
-  fetch(`${GAS_URL}?action=getQuestions&token=${TOKEN}&unit=${encodeURIComponent(UNIT)}`)
-    .then(r => r.json())
-    .then(onLoaded)
-    .catch(err => showError(err.message));
+// ---- 単元選択画面 ----
+
+function showSelectionScreen() {
+  document.getElementById('header-sub').textContent = 'FAR — 単元を選択';
+
+  let html = '';
+  CHAPTERS.forEach((ch, ci) => {
+    const allSel = ch.units.every(u => selected.has(u));
+    html += `
+      <div class="chapter-block">
+        <div class="chapter-header">
+          <span class="chapter-title">${ch.title}</span>
+          <button class="chapter-toggle" onclick="toggleChapter(${ci})">${allSel ? '全解除' : '全選択'}</button>
+        </div>
+    `;
+    ch.units.forEach((unit, ui) => {
+      const sel = selected.has(unit);
+      html += `
+        <div class="unit-item${sel ? ' selected' : ''}" data-unit="${ci}-${ui}" onclick="toggleUnit(${ci},${ui},this)">
+          <input type="checkbox" ${sel ? 'checked' : ''} onclick="event.stopPropagation()">
+          <span class="unit-name-text">${unit}</span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('main').innerHTML = html;
+
+  // スタートバーを body に直接置く（fixedなので）
+  let bar = document.getElementById('start-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'start-bar';
+    bar.className = 'start-bar';
+    document.body.appendChild(bar);
+  }
+  updateStartBar();
+  bar.style.display = 'flex';
 }
 
-function onLoaded(qs) {
-  questions = qs; current = 0; score = 0;
-  if (!questions || questions.length === 0) {
-    showError('問題が見つかりませんでした。');
-    return;
+function toggleUnit(ci, ui, el) {
+  const unit = CHAPTERS[ci].units[ui];
+  if (selected.has(unit)) {
+    selected.delete(unit);
+    el.classList.remove('selected');
+    el.querySelector('input').checked = false;
+  } else {
+    selected.add(unit);
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
   }
-  showQuestion();
+  updateStartBar();
+}
+
+function toggleChapter(ci) {
+  const ch = CHAPTERS[ci];
+  const allSel = ch.units.every(u => selected.has(u));
+  ch.units.forEach(u => allSel ? selected.delete(u) : selected.add(u));
+  showSelectionScreen();
+}
+
+function updateStartBar() {
+  const bar = document.getElementById('start-bar');
+  if (!bar) return;
+  bar.innerHTML = `
+    <span class="selected-count">${selected.size}単元選択中</span>
+    <button class="btn btn-start" onclick="startSession()" ${selected.size === 0 ? 'disabled' : ''}>練習を始める</button>
+  `;
+}
+
+// ---- 練習セッション ----
+
+function startSession() {
+  const bar = document.getElementById('start-bar');
+  if (bar) bar.style.display = 'none';
+  document.getElementById('header-sub').textContent = 'FAR';
+  document.getElementById('main').innerHTML = '<div class="practice-wrap"><div class="card"><div class="center-screen"><div class="loading">⏳ 読み込み中...</div></div></div></div>';
+
+  const units = Array.from(selected);
+  Promise.all(
+    units.map(unit =>
+      fetch(`${GAS_URL}?action=getQuestions&token=${TOKEN}&unit=${encodeURIComponent(unit)}`)
+        .then(r => r.json())
+        .catch(() => [])
+    )
+  ).then(results => {
+    const pool = results.flat().sort(() => Math.random() - 0.5).slice(0, 4);
+    if (!pool.length) { showError('問題が見つかりませんでした。'); return; }
+    questions = pool; current = 0; score = 0;
+    showQuestion();
+  }).catch(err => showError(err.message));
 }
 
 function showQuestion() {
   answered = false;
   const q = questions[current];
+  document.getElementById('header-sub').textContent = q.unit || 'FAR';
+
   const badge = q.type === 'vocab'
     ? '<span class="type-badge type-vocab">Vocab</span>'
     : '<span class="type-badge type-calc">Calculation</span>';
@@ -233,12 +382,16 @@ function showQuestion() {
     `<button class="choice-btn" id="btn-${k}" onclick="answer('${k}')">${k}. ${v}</button>`
   ).join('');
 
-  document.getElementById('card').innerHTML = `
-    <div class="progress">${current + 1} / ${questions.length}</div>
-    ${badge}
-    <div class="question">${q.question}</div>
-    <div class="choices">${choices}</div>
-    <div id="result"></div>
+  document.getElementById('main').innerHTML = `
+    <div class="practice-wrap">
+      <div class="card">
+        <div class="progress">${current + 1} / ${questions.length}</div>
+        ${badge}
+        <div class="question">${q.question}</div>
+        <div class="choices">${choices}</div>
+        <div id="result"></div>
+      </div>
+    </div>
   `;
 }
 
@@ -261,12 +414,10 @@ function answer(sel) {
   let html = ok
     ? `<div class="result correct">✓ 正解！</div>${q.explanation ? '<div class="hint">💡 ' + q.explanation + '</div>' : ''}`
     : `<div class="result wrong">✗ 不正解。正解は ${q.correct} です。</div><div class="hint">💡 ヒント：${q.hint}</div>`;
-  html += `<button class="btn btn-primary" onclick="next()">${isLast ? '結果を見る' : '次の問題 →'}</button>`;
+  html += `<button class="btn btn-primary btn-block" onclick="next()">${isLast ? '結果を見る' : '次の問題 →'}</button>`;
   document.getElementById('result').innerHTML = html;
 
-  // 回答を記録（fire & forget）
-  fetch(`${GAS_URL}?action=saveAnswer&token=${TOKEN}&id=${q.id}&ok=${ok ? 1 : 0}`)
-    .catch(() => {});
+  fetch(`${GAS_URL}?action=saveAnswer&token=${TOKEN}&id=${q.id}&ok=${ok ? 1 : 0}`).catch(() => {});
 }
 
 function next() {
@@ -274,29 +425,41 @@ function next() {
   if (current < questions.length) {
     showQuestion();
   } else {
-    document.getElementById('card').innerHTML = `
-      <div class="score-screen">
-        <h2>セッション完了</h2>
-        <div class="score">${score} <span style="font-size:24px;color:#aaa">/ ${questions.length}</span></div>
-        <p>問題のクオリティはどうでしたか？</p>
-        <button class="btn btn-start" onclick="startSession()">もう一度</button>
-      </div>
-    `;
+    showResults();
   }
 }
 
-function showLoading() {
-  document.getElementById('card').innerHTML = '<div class="loading">⏳ 読み込み中...</div>';
-}
-
-function showError(msg) {
-  document.getElementById('card').innerHTML = `
-    <div class="start-content">
-      <p class="error">エラー: ${msg}</p>
-      <button class="btn btn-start" onclick="startSession()">再試行</button>
+function showResults() {
+  document.getElementById('header-sub').textContent = 'FAR';
+  document.getElementById('main').innerHTML = `
+    <div class="practice-wrap">
+      <div class="card">
+        <div class="center-screen">
+          <h2>セッション完了</h2>
+          <div class="score">${score} <span style="font-size:24px;color:#aaa">/ ${questions.length}</span></div>
+          <button class="btn btn-start btn-block" onclick="startSession()">もう一度</button>
+          <button class="btn btn-back btn-block" onclick="showSelectionScreen()">単元を選び直す</button>
+        </div>
+      </div>
     </div>
   `;
 }
+
+function showError(msg) {
+  document.getElementById('main').innerHTML = `
+    <div class="practice-wrap">
+      <div class="card">
+        <div class="center-screen">
+          <p class="error-msg">エラー: ${msg}</p>
+          <button class="btn btn-back btn-block" onclick="showSelectionScreen()">戻る</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 起動
+showSelectionScreen();
 </script>
 </body>
 </html>
